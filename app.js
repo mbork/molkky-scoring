@@ -193,18 +193,17 @@ function submitScore() {
   }
 
   /* check if all active players have played → new round */
-  const stillActive = state.players.filter(p => !p.eliminated);
-  const roundDone = stillActive.every(p =>
-    state.players.indexOf(p) === state.currentIndex ||   // just played
-    state.playedThisRound.includes(state.players.indexOf(p))
-  );
+  const stillActive = state.players.filter(q => !q.eliminated);
 
   if (stillActive.length === 0) {
-    // edge case: last player just got eliminated with a miss – treat as round end
     saveState();
     renderGame();
     return;
   }
+
+  const roundDone = stillActive.every(q =>
+    state.playedThisRound.includes(state.players.indexOf(q))
+  );
 
   if (roundDone) state.playedThisRound = [];
 
