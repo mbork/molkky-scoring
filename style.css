@@ -17,6 +17,9 @@
   --current-border: #9c6b35;
   --played-op: 0.45;
   --elim-op:   0.3;
+  /* frame color (border + the diagonal cut line); overridden per box */
+  --chamfer:  14px;
+  --frame:    var(--border);
 }
 
 body {
@@ -38,40 +41,69 @@ body {
 
 h1 { font-size: clamp(1.75rem, 6vw, 2.25rem); margin-bottom: 1.5rem; letter-spacing: .05em; }
 
+/* Sharp corners with the top-left one sliced off, and a 3px line painted
+   along that diagonal in the box's --frame color.  --frame and --chamfer are
+   referenced directly here (not via an intermediate custom property) so each
+   box's own override resolves correctly.  background-origin is border-box so
+   the gradient lines up with clip-path, which also uses the border-box. */
+button,
+input[type="text"],
+input[type="number"],
+#player-list li,
+.player-card,
+.elim-tag,
+#turn-panel,
+#winner-box {
+  border-radius: 0;
+  -webkit-clip-path: polygon(var(--chamfer) 0, 100% 0, 100% 100%, 0 100%, 0 var(--chamfer));
+  clip-path: polygon(var(--chamfer) 0, 100% 0, 100% 100%, 0 100%, 0 var(--chamfer));
+  background-image: linear-gradient(135deg,
+    transparent calc(var(--chamfer) * 0.70710678),
+    var(--frame) calc(var(--chamfer) * 0.70710678),
+    var(--frame) calc(var(--chamfer) * 0.70710678 + 3px),
+    transparent calc(var(--chamfer) * 0.70710678 + 3px));
+  background-origin: border-box;
+}
+
 button {
   cursor: pointer;
-  border: 3px solid var(--border);
-  border-radius: 8px;
+  border: 3px solid var(--frame);
   padding: .7rem 1.1rem;
   min-height: 44px;
   font-size: 1rem;
-  background: var(--surface);
+  background-color: var(--surface);
   color: var(--text);
-  transition: background .15s, transform .05s;
+  transition: background-color .15s, transform .05s;
   touch-action: manipulation;
 }
 @media (hover: hover) {
-  button:hover:not(:disabled) { background: #ece0c6; }
+  button:hover:not(:disabled) { background-color: #ece0c6; }
 }
 button:active:not(:disabled) { transform: scale(.97); }
 button:disabled { opacity: .4; cursor: default; }
 
 input[type="text"],
 input[type="number"] {
-  border: 3px solid var(--border);
-  border-radius: 8px;
+  border: 3px solid var(--frame);
   padding: .65rem .8rem;
   min-height: 44px;
   font-size: 1rem; /* >= 16px keeps iOS from zooming on focus */
   width: 100%;
-  background: var(--surface);
+  background-color: var(--surface);
 }
 
 /* drop number spinners; the input is a full-width tap target */
 input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* inset so clip-path (the corner cut) does not clip the ring away */
+input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-offset: -6px; }
+/* filled buttons share the accent color, so an accent ring would vanish
+   on them — give those a light ring instead */
+#start-btn:focus-visible,
+#score-input-row button:focus-visible,
+#new-game-btn:focus-visible { outline-color: #fff; }
 
 /* ── setup ── */
 
@@ -92,15 +124,16 @@ input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-of
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--surface);
-  border: 3px solid var(--border);
-  border-radius: 6px;
+  background-color: var(--surface);
+  border: 3px solid var(--frame);
   padding: .4rem .7rem;
 }
 
 #player-list li button {
   border: none;
   background: none;
+  -webkit-clip-path: none;
+  clip-path: none;
   color: var(--muted);
   font-size: 1.5rem;
   line-height: 1;
@@ -125,14 +158,14 @@ input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-of
 
 #start-btn {
   width: 100%;
-  background: var(--accent);
+  background-color: var(--accent);
   color: #fff;
-  border-color: var(--accent);
+  --frame: var(--accent);
   font-size: 1rem;
   padding: .65rem;
 }
 @media (hover: hover) {
-  #start-btn:hover:not(:disabled) { background: var(--accent-h); border-color: var(--accent-h); }
+  #start-btn:hover:not(:disabled) { background-color: var(--accent-h); --frame: var(--accent-h); }
 }
 
 /* ── game ── */
@@ -157,16 +190,15 @@ input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-of
   display: flex;
   align-items: center;
   gap: .75rem;
-  background: var(--surface);
-  border: 3px solid var(--border);
-  border-radius: 8px;
+  background-color: var(--surface);
+  border: 3px solid var(--frame);
   padding: .65rem 1rem;
   transition: opacity .2s;
 }
 
 .player-card.current {
-  background: var(--current-bg);
-  border-color: var(--current-border);
+  background-color: var(--current-bg);
+  --frame: var(--current-border);
 }
 
 .player-card.played {
@@ -192,8 +224,9 @@ input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-of
 .elim-tag {
   font-size: .75rem;
   color: var(--danger);
-  border: 3px solid var(--danger);
-  border-radius: 4px;
+  --frame: var(--danger);
+  --chamfer: 6px; /* smaller cut for this tiny tag */
+  border: 3px solid var(--frame);
   padding: .1rem .4rem;
   text-transform: uppercase;
   letter-spacing: .05em;
@@ -202,9 +235,8 @@ input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-of
 /* turn panel */
 
 #turn-panel {
-  background: var(--surface);
-  border: 3px solid var(--border);
-  border-radius: 8px;
+  background-color: var(--surface);
+  border: 3px solid var(--frame);
   padding: 1rem;
   display: flex;
   flex-direction: column;
@@ -227,14 +259,14 @@ input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-of
   text-align: center;
 }
 #score-input-row button {
-  background: var(--accent);
+  background-color: var(--accent);
   color: #fff;
-  border-color: var(--accent);
+  --frame: var(--accent);
   font-weight: 600;
   white-space: nowrap;
 }
 @media (hover: hover) {
-  #score-input-row button:hover { background: var(--accent-h); border-color: var(--accent-h); }
+  #score-input-row button:hover { background-color: var(--accent-h); --frame: var(--accent-h); }
 }
 
 /* reset */
@@ -242,11 +274,11 @@ input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-of
 #reset-btn {
   align-self: flex-start;
   color: var(--danger);
-  border-color: var(--danger);
+  --frame: var(--danger);
   font-size: .85rem;
 }
 @media (hover: hover) {
-  #reset-btn:hover { background: #f6e7e1; }
+  #reset-btn:hover { background-color: #f6e7e1; }
 }
 
 /* ── winner banner ── */
@@ -264,8 +296,7 @@ input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-of
 #winner-banner[hidden] { display: none; }
 
 #winner-box {
-  background: var(--surface);
-  border-radius: 12px;
+  background-color: var(--surface);
   padding: clamp(1.75rem, 6vw, 2.5rem) clamp(1.5rem, 7vw, 3rem);
   width: min(100%, 360px);
   text-align: center;
@@ -280,12 +311,12 @@ input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-of
 }
 
 #new-game-btn {
-  background: var(--accent);
+  background-color: var(--accent);
   color: #fff;
-  border-color: var(--accent);
+  --frame: var(--accent);
   font-size: 1rem;
   padding: .6rem 1.5rem;
 }
 @media (hover: hover) {
-  #new-game-btn:hover { background: var(--accent-h); border-color: var(--accent-h); }
+  #new-game-btn:hover { background-color: var(--accent-h); --frame: var(--accent-h); }
 }
