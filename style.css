@@ -4,16 +4,17 @@
 [hidden] { display: none !important; }
 
 :root {
-  --bg:       #f5f4f0;
-  --surface:  #ffffff;
-  --border:   #ddd;
-  --text:     #1a1a1a;
-  --muted:    #888;
-  --accent:   #2b6cb0;
-  --accent-h: #1a4a8a;
-  --danger:   #c0392b;
-  --current-bg: #ebf4ff;
-  --current-border: #2b6cb0;
+  /* light birch-wood palette, after molkky.com */
+  --bg:       #efe5d0;
+  --surface:  #fbf6ec;
+  --border:   #c4a36a;
+  --text:     #3a2e1c;
+  --muted:    #9a8a6c;
+  --accent:   #9c6b35;
+  --accent-h: #835826;
+  --danger:   #b23a2e;
+  --current-bg: #f5e7c8;
+  --current-border: #9c6b35;
   --played-op: 0.45;
   --elim-op:   0.3;
 }
@@ -39,7 +40,7 @@ h1 { font-size: clamp(1.75rem, 6vw, 2.25rem); margin-bottom: 1.5rem; letter-spac
 
 button {
   cursor: pointer;
-  border: 1px solid var(--border);
+  border: 3px solid var(--border);
   border-radius: 8px;
   padding: .7rem 1.1rem;
   min-height: 44px;
@@ -50,14 +51,14 @@ button {
   touch-action: manipulation;
 }
 @media (hover: hover) {
-  button:hover:not(:disabled) { background: #e8e8e8; }
+  button:hover:not(:disabled) { background: #ece0c6; }
 }
 button:active:not(:disabled) { transform: scale(.97); }
 button:disabled { opacity: .4; cursor: default; }
 
 input[type="text"],
 input[type="number"] {
-  border: 1px solid var(--border);
+  border: 3px solid var(--border);
   border-radius: 8px;
   padding: .65rem .8rem;
   min-height: 44px;
@@ -70,7 +71,7 @@ input[type="number"] {
 input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-input:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
 /* ── setup ── */
 
@@ -92,7 +93,7 @@ input:focus, button:focus-visible { outline: 2px solid var(--accent); outline-of
   align-items: center;
   justify-content: space-between;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 3px solid var(--border);
   border-radius: 6px;
   padding: .4rem .7rem;
 }
@@ -157,7 +158,7 @@ input:focus, button:focus-visible { outline: 2px solid var(--accent); outline-of
   align-items: center;
   gap: .75rem;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 3px solid var(--border);
   border-radius: 8px;
   padding: .65rem 1rem;
   transition: opacity .2s;
@@ -191,7 +192,7 @@ input:focus, button:focus-visible { outline: 2px solid var(--accent); outline-of
 .elim-tag {
   font-size: .75rem;
   color: var(--danger);
-  border: 1px solid var(--danger);
+  border: 3px solid var(--danger);
   border-radius: 4px;
   padding: .1rem .4rem;
   text-transform: uppercase;
@@ -202,7 +203,7 @@ input:focus, button:focus-visible { outline: 2px solid var(--accent); outline-of
 
 #turn-panel {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 3px solid var(--border);
   border-radius: 8px;
   padding: 1rem;
   display: flex;
@@ -245,7 +246,7 @@ input:focus, button:focus-visible { outline: 2px solid var(--accent); outline-of
   font-size: .85rem;
 }
 @media (hover: hover) {
-  #reset-btn:hover { background: #fdf0ef; }
+  #reset-btn:hover { background: #f6e7e1; }
 }
 
 /* ── winner banner ── */
