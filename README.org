@@ -1,0 +1,3 @@
+#+TITLE: A simple Mölkky scoring app
+
+This is an extremely simple GPL-3.0-licensed [[https://www.molkky.com/][Mölkky]] scoring app, vibe coded in 15 minutes.  Scores are kept in =localStorage= (no backend).  Use at https://mbork.github.io/molkky-scoring/ at your own risk.
