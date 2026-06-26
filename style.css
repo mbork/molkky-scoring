@@ -1,5 +1,8 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* `hidden` must win over the id selectors below that set `display` */
+[hidden] { display: none !important; }
+
 :root {
   --bg:       #f5f4f0;
   --surface:  #ffffff;
@@ -22,35 +25,51 @@ body {
   min-height: 100dvh;
   display: flex;
   justify-content: center;
-  padding: 2rem 1rem;
+  padding: max(1.5rem, env(safe-area-inset-top))
+           max(1rem, env(safe-area-inset-right))
+           max(1.5rem, env(safe-area-inset-bottom))
+           max(1rem, env(safe-area-inset-left));
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
 }
 
 /* ── shared ── */
 
-h1 { font-size: 2rem; margin-bottom: 1.5rem; letter-spacing: .05em; }
+h1 { font-size: clamp(1.75rem, 6vw, 2.25rem); margin-bottom: 1.5rem; letter-spacing: .05em; }
 
 button {
   cursor: pointer;
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: .45rem .9rem;
-  font-size: .95rem;
+  border-radius: 8px;
+  padding: .7rem 1.1rem;
+  min-height: 44px;
+  font-size: 1rem;
   background: var(--surface);
   color: var(--text);
-  transition: background .15s;
+  transition: background .15s, transform .05s;
+  touch-action: manipulation;
 }
-button:hover:not(:disabled) { background: #e8e8e8; }
+@media (hover: hover) {
+  button:hover:not(:disabled) { background: #e8e8e8; }
+}
+button:active:not(:disabled) { transform: scale(.97); }
 button:disabled { opacity: .4; cursor: default; }
 
 input[type="text"],
 input[type="number"] {
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: .45rem .7rem;
-  font-size: .95rem;
+  border-radius: 8px;
+  padding: .65rem .8rem;
+  min-height: 44px;
+  font-size: 1rem; /* >= 16px keeps iOS from zooming on focus */
   width: 100%;
   background: var(--surface);
 }
+
+/* drop number spinners; the input is a full-width tap target */
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 input:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* ── setup ── */
@@ -82,11 +101,19 @@ input:focus, button:focus-visible { outline: 2px solid var(--accent); outline-of
   border: none;
   background: none;
   color: var(--muted);
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   line-height: 1;
-  padding: 0 .2rem;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: -.4rem -.4rem -.4rem 0; /* fill the row's vertical padding for an easy tap */
 }
-#player-list li button:hover { color: var(--danger); }
+@media (hover: hover) {
+  #player-list li button:hover { color: var(--danger); }
+}
 
 #add-player-row {
   display: flex;
@@ -103,7 +130,9 @@ input:focus, button:focus-visible { outline: 2px solid var(--accent); outline-of
   font-size: 1rem;
   padding: .65rem;
 }
-#start-btn:hover:not(:disabled) { background: var(--accent-h); border-color: var(--accent-h); }
+@media (hover: hover) {
+  #start-btn:hover:not(:disabled) { background: var(--accent-h); border-color: var(--accent-h); }
+}
 
 /* ── game ── */
 
@@ -190,14 +219,22 @@ input:focus, button:focus-visible { outline: 2px solid var(--accent); outline-of
   display: flex;
   gap: .5rem;
 }
-#score-input-row input { flex: 1; font-size: 1.1rem; }
+#score-input-row input {
+  flex: 1;
+  font-size: 1.35rem;
+  font-weight: 600;
+  text-align: center;
+}
 #score-input-row button {
   background: var(--accent);
   color: #fff;
   border-color: var(--accent);
+  font-weight: 600;
   white-space: nowrap;
 }
-#score-input-row button:hover { background: var(--accent-h); border-color: var(--accent-h); }
+@media (hover: hover) {
+  #score-input-row button:hover { background: var(--accent-h); border-color: var(--accent-h); }
+}
 
 /* reset */
 
@@ -207,7 +244,9 @@ input:focus, button:focus-visible { outline: 2px solid var(--accent); outline-of
   border-color: var(--danger);
   font-size: .85rem;
 }
-#reset-btn:hover { background: #fdf0ef; }
+@media (hover: hover) {
+  #reset-btn:hover { background: #fdf0ef; }
+}
 
 /* ── winner banner ── */
 
@@ -218,6 +257,7 @@ input:focus, button:focus-visible { outline: 2px solid var(--accent); outline-of
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 1rem;
 }
 
 #winner-banner[hidden] { display: none; }
@@ -225,7 +265,8 @@ input:focus, button:focus-visible { outline: 2px solid var(--accent); outline-of
 #winner-box {
   background: var(--surface);
   border-radius: 12px;
-  padding: 2.5rem 3rem;
+  padding: clamp(1.75rem, 6vw, 2.5rem) clamp(1.5rem, 7vw, 3rem);
+  width: min(100%, 360px);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -233,7 +274,7 @@ input:focus, button:focus-visible { outline: 2px solid var(--accent); outline-of
 }
 
 #winner-text {
-  font-size: 1.8rem;
+  font-size: clamp(1.5rem, 7vw, 1.8rem);
   font-weight: 700;
 }
 
@@ -244,4 +285,6 @@ input:focus, button:focus-visible { outline: 2px solid var(--accent); outline-of
   font-size: 1rem;
   padding: .6rem 1.5rem;
 }
-#new-game-btn:hover { background: var(--accent-h); border-color: var(--accent-h); }
+@media (hover: hover) {
+  #new-game-btn:hover { background: var(--accent-h); border-color: var(--accent-h); }
+}
