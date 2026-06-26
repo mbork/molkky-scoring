@@ -241,8 +241,18 @@ scoreInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitScore
 
 /* ── reset ───────────────────────────────────────────────────── */
 
+// Keep the roster, drop only the play: scores, misses, elimination and
+// finishing positions all go back to their starting values.
 function resetGame() {
-  state = emptyState();
+  state.phase = 'setup';
+  state.currentIndex = 0;
+  state.playedThisRound = [];
+  state.players.forEach(p => {
+    p.score = 0;
+    p.misses = 0;
+    p.eliminated = false;
+    p.position = null;
+  });
   saveState();
   showSetup();
 }

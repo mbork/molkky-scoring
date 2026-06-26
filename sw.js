@@ -1,6 +1,6 @@
 /* ── config ──────────────────────────────────────────────────── */
 
-const CACHE = 'molkky-v4';
+const CACHE = 'molkky-v5';
 
 /* Paths are relative to the worker's location, so this works unchanged
    under the GitHub Pages subpath (/molkky-scoring/). */
