@@ -52,6 +52,7 @@ input[type="number"],
 #player-list li,
 .player-card,
 .elim-tag,
+.pos-tag,
 #turn-panel,
 #winner-box {
   border-radius: 0;
@@ -201,6 +202,12 @@ input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-of
   --frame: var(--current-border);
 }
 
+/* a player who reached 50: kept at full opacity and accent-framed, with a
+   position badge instead of being dimmed like a played card */
+.player-card.finished {
+  --frame: var(--accent);
+}
+
 .player-card.played {
   opacity: var(--played-op);
 }
@@ -230,6 +237,18 @@ input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-of
   padding: .1rem .4rem;
   text-transform: uppercase;
   letter-spacing: .05em;
+}
+
+.pos-tag {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  background-color: var(--accent);
+  --frame: var(--accent);
+  --chamfer: 6px;
+  min-width: 2.2rem;
+  padding: .15rem .55rem;
+  text-align: center;
 }
 
 /* turn panel */
@@ -308,6 +327,26 @@ input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-of
 #winner-text {
   font-size: clamp(1.5rem, 7vw, 1.8rem);
   font-weight: 700;
+}
+
+#standings {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  text-align: left;
+}
+#standings li {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  font-size: 1.15rem;
+}
+#standings .rank {
+  font-weight: 700;
+  min-width: 1.8rem;
+  text-align: right;
+  color: var(--accent);
 }
 
 #new-game-btn {

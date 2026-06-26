@@ -9,9 +9,25 @@ function emptyState() {
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      normalizePlayers(parsed.players);
+      return parsed;
+    }
   } catch (_) {}
   return emptyState();
+}
+
+// Backfill fields added after an older save was written.
+function normalizePlayers(players) {
+  if (!Array.isArray(players)) {
+    return;
+  }
+  players.forEach(p => {
+    if (p.position === undefined) {
+      p.position = null;
+    }
+  });
 }
 
 function saveState() {
@@ -25,7 +41,7 @@ let state = loadState();
 const setupSection      = document.getElementById('setup');
 const gameSection       = document.getElementById('game');
 const winnerBanner      = document.getElementById('winner-banner');
-const winnerText        = document.getElementById('winner-text');
+const standings         = document.getElementById('standings');
 
 const playerList        = document.getElementById('player-list');
 const playerNameInput   = document.getElementById('player-name-input');
@@ -67,7 +83,7 @@ function addPlayer() {
     playerNameInput.select();
     return;
   }
-  state.players.push({ name, score: 0, misses: 0, eliminated: false });
+  state.players.push({ name, score: 0, misses: 0, eliminated: false, position: null });
   playerNameInput.value = '';
   saveState();
   renderSetupList();
@@ -88,7 +104,14 @@ startBtn.addEventListener('click', () => {
 /* ── game screen ─────────────────────────────────────────────── */
 
 function activePlayers() {
-  return state.players.filter(p => !p.eliminated);
+  return state.players.filter(p => !p.eliminated && p.position === null);
+}
+
+// The next finishing position: 1 for the first player to reach 50, 2 for the
+// next, and so on.
+function nextPosition() {
+  const finished = state.players.filter(p => p.position !== null);
+  return finished.length + 1;
 }
 
 function showSetup() {
@@ -112,13 +135,14 @@ function renderGame() {
     const card = document.createElement('div');
     card.className = 'player-card';
 
-    const active = activePlayers();
-    const isNext = !p.eliminated && i === state.currentIndex;
+    const isFinished = p.position !== null;
+    const isNext = !p.eliminated && !isFinished && i === state.currentIndex;
     const hasPlayed = state.playedThisRound.includes(i);
 
-    if (p.eliminated)  card.classList.add('eliminated');
-    else if (isNext)   card.classList.add('current');
-    else if (hasPlayed) card.classList.add('played');
+    if (p.eliminated)    card.classList.add('eliminated');
+    else if (isFinished) card.classList.add('finished');
+    else if (isNext)     card.classList.add('current');
+    else if (hasPlayed)  card.classList.add('played');
 
     const nameEl = document.createElement('span');
     nameEl.className = 'player-name';
@@ -135,6 +159,11 @@ function renderGame() {
       const tag = document.createElement('span');
       tag.className = 'elim-tag';
       tag.textContent = 'out';
+      card.appendChild(tag);
+    } else if (isFinished) {
+      const tag = document.createElement('span');
+      tag.className = 'pos-tag';
+      tag.textContent = '#' + p.position;
       card.appendChild(tag);
     }
 
@@ -155,9 +184,9 @@ function advanceCurrentIndex() {
   const n = state.players.length;
   let next = (state.currentIndex + 1) % n;
   let loops = 0;
-  while (state.players[next].eliminated) {
+  while (state.players[next].eliminated || state.players[next].position !== null) {
     next = (next + 1) % n;
-    if (++loops > n) break; // all eliminated (shouldn't happen)
+    if (++loops > n) break; // everyone finished or out (shouldn't happen)
   }
   state.currentIndex = next;
 }
@@ -168,7 +197,7 @@ function submitScore() {
   const pts = Math.max(0, Math.floor(Number(raw)));
 
   const p = state.players[state.currentIndex];
-  if (!p || p.eliminated) return;
+  if (!p || p.eliminated || p.position !== null) return;
 
   /* apply score */
   if (pts === 0) {
@@ -179,29 +208,24 @@ function submitScore() {
     if (p.score > 50) p.score = 25;
   }
 
-  /* check elimination */
+  /* reaching exactly 50 finishes the game for this player, who takes the next
+     position; everyone else keeps playing */
+  if (p.score === 50) p.position = nextPosition();
+
+  /* three misses in a row eliminates */
   if (p.misses >= 3) p.eliminated = true;
 
   /* mark as played this round */
   state.playedThisRound.push(state.currentIndex);
 
-  /* check win */
-  if (p.score === 50) {
-    saveState();
-    showWinner(p.name);
+  /* game over once nobody is still active */
+  if (activePlayers().length === 0) {
+    showResults();
     return;
   }
 
-  /* check if all active players have played → new round */
-  const stillActive = state.players.filter(q => !q.eliminated);
-
-  if (stillActive.length === 0) {
-    saveState();
-    renderGame();
-    return;
-  }
-
-  const roundDone = stillActive.every(q =>
+  /* start a new round once every still-active player has played */
+  const roundDone = activePlayers().every(q =>
     state.playedThisRound.includes(state.players.indexOf(q))
   );
 
@@ -226,20 +250,54 @@ function resetGame() {
 resetBtn.addEventListener('click', resetGame);
 newGameBtn.addEventListener('click', resetGame);
 
-/* ── winner ──────────────────────────────────────────────────── */
+/* ── results ─────────────────────────────────────────────────── */
 
-function showWinner(name) {
+function showResults() {
+  state.phase = 'over';
+  saveState();
   gameSection.hidden  = true;
   winnerBanner.hidden = false;
-  winnerText.textContent = name + ' wins!';
+  renderStandings();
+}
+
+function renderStandings() {
+  standings.innerHTML = '';
+
+  const finished = state.players.filter(p => p.position !== null);
+  finished.sort((a, b) => a.position - b.position);
+  const out = state.players.filter(p => p.eliminated);
+
+  finished.forEach(p => {
+    standings.appendChild(standingRow('#' + p.position, p.name));
+  });
+  out.forEach(p => {
+    standings.appendChild(standingRow('-', p.name));
+  });
+}
+
+function standingRow(rank, name) {
+  const li = document.createElement('li');
+
+  const rankEl = document.createElement('span');
+  rankEl.className = 'rank';
+  rankEl.textContent = rank;
+
+  const nameEl = document.createElement('span');
+  nameEl.textContent = name;
+
+  li.appendChild(rankEl);
+  li.appendChild(nameEl);
+  return li;
 }
 
 /* ── init ────────────────────────────────────────────────────── */
 
-if (state.phase === 'game') {
-  showGame();
-} else {
+if (state.phase === 'setup') {
   showSetup();
+} else if (state.phase === 'game') {
+  showGame();
+} else if (state.phase === 'over') {
+  showResults();
 }
 
 /* ── service worker ──────────────────────────────────────────── */
