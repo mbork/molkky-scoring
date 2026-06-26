@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mölkky</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <section id="setup">
+    <h1>Mölkky</h1>
+    <ul id="player-list"></ul>
+    <div id="add-player-row">
+      <input id="player-name-input" type="text" placeholder="Player name" maxlength="30" />
+      <button id="add-player-btn">Add</button>
+    </div>
+    <button id="start-btn" disabled>Start game</button>
+  </section>
+
+  <section id="game" hidden>
+    <div id="scoreboard"></div>
+    <div id="turn-panel">
+      <span id="turn-label"></span>
+      <div id="score-input-row">
+        <input id="score-input" type="number" min="0" max="12" placeholder="Score" />
+        <button id="submit-score-btn">Submit</button>
+      </div>
+    </div>
+    <button id="reset-btn">Reset game</button>
+  </section>
+
+  <div id="winner-banner" hidden>
+    <div id="winner-box">
+      <p id="winner-text"></p>
+      <button id="new-game-btn">New game</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
