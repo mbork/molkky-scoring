@@ -240,8 +240,13 @@ function submitScore() {
   /* mark as played this round */
   state.playedThisRound.push(state.currentIndex);
 
-  /* game over once nobody is still active */
-  if (activePlayers().length === 0) {
+  /* the game ends once at most one player is still active: a lone survivor
+     need not reach 50, they simply take the best remaining (top) position */
+  const remaining = activePlayers();
+  if (remaining.length <= 1) {
+    if (remaining.length === 1) {
+      remaining[0].position = nextFinishPosition();
+    }
     showResults();
     return;
   }
