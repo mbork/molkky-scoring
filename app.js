@@ -107,11 +107,19 @@ function activePlayers() {
   return state.players.filter(p => !p.eliminated && p.position === null);
 }
 
-// The next finishing position: 1 for the first player to reach 50, 2 for the
-// next, and so on.
-function nextPosition() {
-  const finished = state.players.filter(p => p.position !== null);
-  return finished.length + 1;
+// Finishers take positions from the top: 1 for the first player to reach 50,
+// 2 for the next, and so on.  Eliminated players carry a position too, so only
+// the ones who actually reached 50 are counted here.
+function nextFinishPosition() {
+  const finishers = state.players.filter(p => p.position !== null && !p.eliminated);
+  return finishers.length + 1;
+}
+
+// The eliminated take positions from the bottom: the first one out lands last
+// (position N with N players), the next one second-to-last, and so on.
+function nextEliminatedPosition() {
+  const eliminated = state.players.filter(p => p.eliminated);
+  return state.players.length - eliminated.length;
 }
 
 function showSetup() {
@@ -135,8 +143,9 @@ function renderGame() {
     const card = document.createElement('div');
     card.className = 'player-card';
 
-    const isFinished = p.position !== null;
-    const isNext = !p.eliminated && !isFinished && i === state.currentIndex;
+    const hasPosition = p.position !== null;
+    const isFinished = hasPosition && !p.eliminated; // reached 50 (not out)
+    const isNext = !p.eliminated && !hasPosition && i === state.currentIndex;
     const hasPlayed = state.playedThisRound.includes(i);
 
     if (p.eliminated)    card.classList.add('eliminated');
@@ -156,9 +165,11 @@ function renderGame() {
     card.appendChild(scoreEl);
 
     if (p.eliminated) {
+      // out, with the place earned from the bottom: "out #4" (older in-progress
+      // saves may predate positions on the eliminated, so guard for null)
       const tag = document.createElement('span');
       tag.className = 'elim-tag';
-      tag.textContent = 'out';
+      tag.textContent = p.position === null ? 'out' : 'out #' + p.position;
       card.appendChild(tag);
     } else if (isFinished) {
       const tag = document.createElement('span');
@@ -216,11 +227,15 @@ function submitScore() {
   }
 
   /* reaching exactly 50 finishes the game for this player, who takes the next
-     position; everyone else keeps playing */
-  if (p.score === 50) p.position = nextPosition();
+     position from the top; everyone else keeps playing */
+  if (p.score === 50) p.position = nextFinishPosition();
 
-  /* three misses in a row eliminates */
-  if (p.misses >= 3) p.eliminated = true;
+  /* three misses in a row eliminates; the eliminated take positions from the
+     bottom, so compute before flagging this player */
+  if (p.misses >= 3) {
+    p.position = nextEliminatedPosition();
+    p.eliminated = true;
+  }
 
   /* mark as played this round */
   state.playedThisRound.push(state.currentIndex);
@@ -280,15 +295,18 @@ function showResults() {
 function renderStandings() {
   standings.innerHTML = '';
 
-  const finished = state.players.filter(p => p.position !== null);
-  finished.sort((a, b) => a.position - b.position);
-  const out = state.players.filter(p => p.eliminated);
+  // Everyone carries a position now (finishers from the top, the eliminated
+  // from the bottom), so a single ranked list covers the whole field.
+  const ranked = state.players.filter(p => p.position !== null);
+  ranked.sort((a, b) => a.position - b.position);
 
-  finished.forEach(p => {
-    standings.appendChild(standingRow('#' + p.position, p.name));
-  });
-  out.forEach(p => {
-    standings.appendChild(standingRow('-', p.name));
+  ranked.forEach(p => {
+    const rank = p.eliminated ? 'out #' + p.position : '#' + p.position;
+    const row = standingRow(rank, p.name);
+    if (p.eliminated) {
+      row.classList.add('out');
+    }
+    standings.appendChild(row);
   });
 }
 

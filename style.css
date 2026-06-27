@@ -370,6 +370,12 @@ input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-of
   text-align: right;
   color: var(--accent);
 }
+/* eliminated players: ranked from the bottom, name dimmed, rank in danger red */
+#standings li.out { color: var(--muted); }
+#standings li.out .rank {
+  min-width: 3.4rem;
+  color: var(--danger);
+}
 
 #new-game-btn {
   background-color: var(--accent);
