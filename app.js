@@ -51,6 +51,7 @@ const startBtn          = document.getElementById('start-btn');
 const scoreboard        = document.getElementById('scoreboard');
 const turnLabel         = document.getElementById('turn-label');
 const scoreInput        = document.getElementById('score-input');
+const keypad            = document.getElementById('keypad');
 const submitScoreBtn    = document.getElementById('submit-score-btn');
 const resetBtn          = document.getElementById('reset-btn');
 const reorderBtn        = document.getElementById('reorder-btn');
@@ -267,10 +268,30 @@ function submitScore() {
 submitScoreBtn.addEventListener('click', submitScore);
 scoreInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitScore(); });
 
+/* on-screen numeric keypad: appends the tapped digit to the score field,
+   capped at two digits (the max throw is 12) and normalized so a stray
+   leading zero drops away */
+function pressKey(digit) {
+  const combined = (scoreInput.value + digit).slice(0, 2);
+  scoreInput.value = String(Number(combined));
+}
+
+keypad.addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) {
+    return;
+  }
+  if (btn.classList.contains('back')) {
+    scoreInput.value = scoreInput.value.slice(0, -1);
+  } else {
+    pressKey(btn.textContent);
+  }
+});
+// keep the caret (and focus) on the input rather than letting a tap move it
+keypad.addEventListener('mousedown', e => { e.preventDefault(); });
+
 /* ── reset ───────────────────────────────────────────────────── */
 
-// Keep the roster, drop only the play: scores, misses, elimination and
-// finishing positions all go back to their starting values.
 // Clear the play (scores, misses, elimination, positions) but keep the roster.
 function clearScores() {
   state.players.forEach(p => {

@@ -32,9 +32,29 @@
     <div id="turn-panel">
       <span id="turn-label"></span>
       <div id="score-input-row">
-        <input id="score-input" type="number" inputmode="numeric" min="0" max="12"
+        <input id="score-input" type="number" inputmode="none" min="0" max="12"
                placeholder="Score" enterkeyhint="done" />
         <button id="submit-score-btn">Submit</button>
+      </div>
+      <div id="keypad" aria-label="score keyboard">
+        <button tabindex="-1">1</button>
+        <button tabindex="-1">2</button>
+        <button tabindex="-1">3</button>
+        <button tabindex="-1">4</button>
+        <button tabindex="-1">5</button>
+        <button tabindex="-1">6</button>
+        <button tabindex="-1">7</button>
+        <button tabindex="-1">8</button>
+        <button tabindex="-1">9</button>
+        <button tabindex="-1" class="zero">0</button>
+        <button tabindex="-1" class="back" aria-label="backspace">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"
+               fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linejoin="round" stroke-linecap="round">
+            <polygon points="9 4 22 4 22 20 9 20 2 12" />
+            <path d="M13 10l5 5M18 10l-5 5" />
+          </svg>
+        </button>
       </div>
     </div>
     <button id="reset-btn">Reset game</button>

@@ -310,6 +310,32 @@ input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-of
   #score-input-row button:hover { background-color: var(--accent-h); --frame: var(--accent-h); }
 }
 
+/* on-screen keypad: phone layout, 1-2-3 on top, 0 centered on the bottom row */
+#keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .5rem;
+}
+#keypad button {
+  font-size: 1.4rem;
+  font-weight: 600;
+  padding: .7rem 0;
+}
+#keypad .zero {
+  grid-column: 2;
+}
+#keypad .back {
+  grid-column: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+}
+#keypad .back svg {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
 /* reset */
 
 #reset-btn {
