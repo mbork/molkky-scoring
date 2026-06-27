@@ -53,6 +53,7 @@ const turnLabel         = document.getElementById('turn-label');
 const scoreInput        = document.getElementById('score-input');
 const submitScoreBtn    = document.getElementById('submit-score-btn');
 const resetBtn          = document.getElementById('reset-btn');
+const reorderBtn        = document.getElementById('reorder-btn');
 const newGameBtn        = document.getElementById('new-game-btn');
 
 /* ── setup screen ────────────────────────────────────────────── */
@@ -270,16 +271,21 @@ scoreInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitScore
 
 // Keep the roster, drop only the play: scores, misses, elimination and
 // finishing positions all go back to their starting values.
-function resetGame() {
-  state.phase = 'setup';
-  state.currentIndex = 0;
-  state.playedThisRound = [];
+// Clear the play (scores, misses, elimination, positions) but keep the roster.
+function clearScores() {
   state.players.forEach(p => {
     p.score = 0;
     p.misses = 0;
     p.eliminated = false;
     p.position = null;
   });
+}
+
+function resetGame() {
+  state.phase = 'setup';
+  state.currentIndex = 0;
+  state.playedThisRound = [];
+  clearScores();
   saveState();
   showSetup();
 }
@@ -296,6 +302,21 @@ function showResults() {
   winnerBanner.hidden = false;
   renderStandings();
 }
+
+// Rematch in finishing order: sort the roster by position descending so the
+// loser (highest position) comes first and throws first, the winner (#1) last,
+// then clear scores and start the new game straight away.
+function reorderAndRestart() {
+  state.players.sort((a, b) => b.position - a.position);
+  clearScores();
+  state.phase = 'game';
+  state.currentIndex = 0;
+  state.playedThisRound = [];
+  saveState();
+  showGame();
+}
+
+reorderBtn.addEventListener('click', reorderAndRestart);
 
 function renderStandings() {
   standings.innerHTML = '';
