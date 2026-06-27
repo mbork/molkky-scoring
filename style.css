@@ -13,6 +13,7 @@
   --accent:   #9c6b35;
   --accent-h: #835826;
   --danger:   #b23a2e;
+  --warn:     #e2b007;
   --current-bg: #f5e7c8;
   --current-border: #9c6b35;
   --played-op: 0.45;
@@ -53,6 +54,7 @@ input[type="number"],
 .player-card,
 .elim-tag,
 .pos-tag,
+.miss-tag,
 #turn-panel,
 #winner-box {
   border-radius: 0;
@@ -249,6 +251,26 @@ input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-of
   min-width: 2.2rem;
   padding: .15rem .55rem;
   text-align: center;
+}
+
+/* one or two consecutive misses: a filled "0" (yellow) or "00" (red) badge */
+.miss-tag {
+  font-size: 1rem;
+  font-weight: 700;
+  --chamfer: 6px;
+  min-width: 2.2rem;
+  padding: .15rem .55rem;
+  text-align: center;
+}
+.miss-tag.miss-1 {
+  color: var(--text);
+  background-color: var(--warn);
+  --frame: var(--warn);
+}
+.miss-tag.miss-2 {
+  color: #fff;
+  background-color: var(--danger);
+  --frame: var(--danger);
 }
 
 /* turn panel */

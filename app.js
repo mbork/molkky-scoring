@@ -165,6 +165,13 @@ function renderGame() {
       tag.className = 'pos-tag';
       tag.textContent = '#' + p.position;
       card.appendChild(tag);
+    } else if (p.misses > 0) {
+      // one or two misses in a row (three eliminates, handled above): a yellow
+      // "0" or red "00" warning that the player is one bad throw from out
+      const tag = document.createElement('span');
+      tag.className = 'miss-tag miss-' + p.misses;
+      tag.textContent = '0'.repeat(p.misses);
+      card.appendChild(tag);
     }
 
     scoreboard.appendChild(card);
