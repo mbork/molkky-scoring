@@ -54,7 +54,6 @@ const scoreInput        = document.getElementById('score-input');
 const keypad            = document.getElementById('keypad');
 const submitScoreBtn    = document.getElementById('submit-score-btn');
 const resetBtn          = document.getElementById('reset-btn');
-const reorderBtn        = document.getElementById('reorder-btn');
 const newGameBtn        = document.getElementById('new-game-btn');
 
 /* ── setup screen ────────────────────────────────────────────── */
@@ -312,7 +311,7 @@ function resetGame() {
 }
 
 resetBtn.addEventListener('click', resetGame);
-newGameBtn.addEventListener('click', resetGame);
+newGameBtn.addEventListener('click', reorderAndRestart);
 
 /* ── results ─────────────────────────────────────────────────── */
 
@@ -324,9 +323,9 @@ function showResults() {
   renderStandings();
 }
 
-// Rematch in finishing order: sort the roster by position descending so the
-// loser (highest position) comes first and throws first, the winner (#1) last,
-// then clear scores and start the new game straight away.
+// "New game": rematch in finishing order.  Sort the roster by position
+// descending so the loser (highest position) comes first and throws first, the
+// winner (#1) last, then clear scores and start the new game straight away.
 function reorderAndRestart() {
   state.players.sort((a, b) => b.position - a.position);
   clearScores();
@@ -336,8 +335,6 @@ function reorderAndRestart() {
   saveState();
   showGame();
 }
-
-reorderBtn.addEventListener('click', reorderAndRestart);
 
 function renderStandings() {
   standings.innerHTML = '';

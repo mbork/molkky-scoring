@@ -403,15 +403,6 @@ input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-of
   color: var(--danger);
 }
 
-/* secondary action: surface fill with the border frame, set apart from the
-   accent-filled "new game" primary below it */
-#reorder-btn {
-  background-color: var(--surface);
-  color: var(--text);
-  font-size: .9rem;
-  padding: .55rem 1.5rem;
-}
-
 #new-game-btn {
   background-color: var(--accent);
   color: #fff;
